@@ -1,0 +1,56 @@
+0001/** New Subprogram ENCSUBP.
+0002/**
+0003/** :author jmgil
+0004/* TODO Enter your code here
+0005DEFINE DATA
+0006PARAMETER
+000701 #EC (A1)
+000801 #DTEXT (A) DYNAMIC /* decrypted text
+000901 #ETEXT (A) DYNAMIC /* encrypted text
+001001 #RC (N1) /* 1-encrypt failed, 2-decrypt failed, 9-invalid option, 0-success
+001101 #RC-MSG (A79)
+0012local
+001301 #lrc (i4)
+0014END-DEFINE
+0015*
+0016DECIDE ON FIRST VALUE OF #EC
+0017  VALUE 'E'
+0018    /* write out the text to a value
+0019    define work file 1 '/opt/softwareag/scripts/dtext.txt'
+0020    write work file 1 variable #DTEXT
+0021    close work file 1
+0022    /* encrypt value
+0023    CALL 'SHCMD' '/opt/softwareag/scripts/encrypt_data.sh > /opt/softwareag/scripts/out.txt 2> /opt/softwareag/scritps/err.txt' 'NOSCREENIO'
+0024    #lrc := RET('SHCMD')
+0025    if #lrc <> 0
+0026      #rc := 2
+0027      #rc-msg := 'encrypt failed'
+0028      escape routine
+0029    end-if
+0030    define work file 2 '/opt/softwareag/scritps/etext.txt' type 'unformatted'
+0031    read work file 2 ONCE #ETEXT
+0032    close work file 2
+0033    #RC     := 0
+0034    #RC-MSG := 'text encrypted'
+0035  VALUE 'D'
+0036    define work file 1 '/opt/softwareag/scritps/etext.txt' type 'unformatted'
+0037    write work file 1 variable #ETEXT
+0038    close work file 1
+0039    CALL 'SHCMD' '/opt/softwareag/scritps/decrypt_data.sh' 'NOSCREENIO'
+0040    #lrc := RET('SHCMD')
+0041    if #lrc <> 0
+0042      #rc := 3
+0043      #rc-msg := 'decrypt failed'
+0044      escape routine
+0045    end-if
+0046    define work file 2 '/opt/softwareag/scritps/dtext.txt'
+0047    read work file 2 #DTEXT
+0048    end-work
+0049    close work file 2
+0050    #RC     := 0
+0051    #RC-MSG := 'text decrypted'
+0052  NONE
+0053    #RC     := 9
+0054    #RC-msg := 'Invalid option selected, E or D valid values'
+0055END-DECIDE
+0056END

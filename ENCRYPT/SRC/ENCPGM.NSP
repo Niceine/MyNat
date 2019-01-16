@@ -1,0 +1,39 @@
+0001/** New Program ENCPGM.
+0002/**
+0003/** :author jmgil
+0004/* TODO Enter your code here
+0005DEFINE DATA
+0006LOCAL
+000701 #EC (A1)     /* option, E - encrypt, D - decrypt
+000801 #DTEXT (A) DYNAMIC /* decrypted text
+000901 #ETEXT (A) DYNAMIC /* encrypted text
+001001 #RC (N1)     /* 1-encrypt failed, 2-decrypt failed, 9-invalid option, 0-success
+001101 #RC-MSG (A79)
+0012END-DEFINE
+0013*
+0014* Encrypt the message
+0015#EC := 'E'
+0016#DTEXT := 'This is a test again... and again'
+0017RESET #ETEXT #RC #RC-MSG
+0018CALLNAT 'ENCSUBP' #EC #DTEXT #ETEXT #RC #RC-MSG
+0019IF #RC > 0
+0020  WRITE #RC / #RC-MSG
+0021  /* nothing else to do, it failed
+0022ELSE
+0023* Decrypt the message
+0024  #EC := 'D'
+0025  RESET #DTEXT #RC #RC-MSG
+0026  CALLNAT 'ENCSUBP' #EC #DTEXT #ETEXT #RC #RC-MSG
+0027*
+0028  IF #RC > 0
+0029    WRITE #RC / #RC-MSG
+0030    /* nothing else to do, it failed
+0031  ELSE 
+0032    WRITE #RC / #RC-MSG
+0033    WRITE #DTEXT (al=79)
+0034    /* SUCCESS!
+0035*
+0036  END-IF
+0037END-IF
+0038*
+0039END
